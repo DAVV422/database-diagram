@@ -1,0 +1,166 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,400italic,500,500italic,700,700italic,900,900italic,300italic,300,100italic,100);
+
+body {
+   font-family: 'Roboto', sans-serif;
+}
+
+.myDiagramDiv {
+  background: whitesmoke;
+  width: 700px;
+  height: 300px;
+  border: 1px solid black;
+}
+
+.myPaletteDiv {
+  background: lightcyan;
+  border: 1px solid navy;
+  width: 125px;
+  height: 300px;
+}
+
+.myOverviewDiv {
+  width: 200px;
+  height: 150px;
+  background: whitesmoke;
+  border: 1px solid black;
+}
+
+.left {
+  float: left;
+  padding: 5px;
+  margin: 5px;
+}
+
+.box {
+  border: solid 1px rgb(19, 16, 16);
+  background: whitesmoke;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.clear {
+  clear: both;
+}
+
+#currentFile {
+  background: #030303;
+  width: 100%;
+  text-align: center;
+  font-family: Arial;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 3px 0px;
+  color: white;
+}
+
+
+/* top bar area */
+
+/* .ui-accordion .ui-accordion-content {
+  padding: 1px;
+}
+.ui-menu {
+  width: 120px;
+}
+#menuui {
+  height: 30px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 2px;
+  border-color: #5f5c5c;
+}
+#menuui > li {
+   float: left;  
+}     */
+
+/* end top bar area*/
+
+#menu {
+	background: #001218;
+	height: 30px;
+	border-radius: 0px;
+	border: 2px solid #D2D2D2;
+}
+                
+#menu ul, #menu li{
+  margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+#menu ul {
+	width: 100%;
+  height: 100%;
+	text-align: left;
+}
+
+#menu li {
+	display: inline-block;
+	position: relative;
+}
+
+#menu a {
+	display: inline-block;
+	padding: 5px 10px;
+	text-decoration: none;
+	color: #FFFFFF;
+  height: auto;
+}
+
+#menu a.dropdown-arrow:after {
+	content: "\25BE";
+	margin-left: 5px;
+}
+
+#menu li a:hover {
+	color: #0099CC;
+	background: #F2F2F2;
+}
+
+#menu input {
+	display: none;
+	margin: 0;
+	padding: 0;
+	height: 30px;
+	width: 100%;
+	opacity: 0;
+	cursor: pointer
+}
+
+#menu ul.sub-menus{
+	height: auto;
+	width: auto;
+	background: #444444;
+	position: absolute;
+	z-index: 100;
+	display: none;
+}
+
+#menu ul.sub-menus li {
+	display: block;
+	text-align: left;
+	width: 100%;
+}
+#menu ul.sub-menus a {
+	color: #FFFFFF;
+	font-size: 16px;
+}
+#menu li:hover ul.sub-menus {
+	display: block
+}
+#menu ul.sub-menus a:hover{
+	background: #F2F2F2;
+	color: #444444;
+}
+@media screen and (max-width: 800px){
+	#menu {position:relative}
+	#menu ul {background:#444444;position:absolute;top:100%;right:0;left:0;z-index:3;height:auto;display:none;text-align:left;}
+	#menu ul.sub-menus {width:100%;position:static;}
+	#menu ul.sub-menus a {padding-left:30px;}
+	#menu li {display:block;float:none;width:auto;}
+	#menu input, #menu label {position:absolute;top:0;left:0;display:block}
+	#menu input {z-index:4}
+	#menu input:checked + label {color:#FFFFFF}
+	#menu input:checked + label:before {content:"\00d7"}
+	#menu input:checked ~ ul {display:block}
+}

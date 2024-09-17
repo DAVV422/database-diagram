@@ -1,0 +1,73 @@
+<div>
+  <div id="currentFile">(Unsaved File)</div>
+  <nav id="menu">
+    <ul id="menuui">
+      <li><a >File</a>
+        <ul class='sub-menus'>
+          <li><a style="width: 120px;" href="#" id="newDocument">New</a></li>
+          <li><a style="width: 120px;" href="#" id="openDocuments">Open...</a></li>
+          <li><a style="width: 120px;" href="#" id="saveDocument">Save</a></li>
+          <li><a style="width: 120px;" href="#" id="saveDocumentAs">Save As...</a></li>
+          <li><a style="width: 120px;" href="#" id="removeDocuments">Delete...</a></li>
+        </ul>
+      </li>
+      <li><a>Edit</a>
+        <ul class='sub-menus'>
+          <li><a style="width: 120px;" (click)="undo()" id="undo">Undo</a></li>
+          <li><a style="width: 120px;" href="#" id="redo">Redo</a></li>
+          <li><a style="width: 120px;" href="#" id="cutSelection">Cut</a></li>
+          <li><a style="width: 120px;" href="#" id="copySelection">Copy</a></li>
+          <li><a style="width: 120px;" href="#" id="pasteSelection">Paste</a></li>
+          <li><a style="width: 120px;" href="#" id="deleteSelection">Delete</a></li>
+          <li><a style="width: 120px;" href="#" id="selectAll">Select All</a></li>
+        </ul>
+      </li>
+      <li><a href="#">Options</a>
+        <ul class='sub-menus'>
+          <li><a style="width: 120px;" href="#">
+              <input id="grid" type="checkbox" name="options" value="grid">Grid</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</div>
+<!--END menu bar -->
+
+<diagrama-palette></diagrama-palette>
+
+<div class="left">
+  Diagram
+  <app-gojs-diagram #myDiagram [initDiagram]='initDiagram' [nodeDataArray]='state.diagramNodeData'
+    [linkDataArray]='state.diagramLinkData' [divClassName]='diagramDivClassName' [modelData]='state.diagramModelData'
+    (skipsDiagramUpdate)='state.skipsDiagramUpdate' (modelChange)='diagramModelChange($event)'>
+  </app-gojs-diagram>
+</div>
+
+<div class="left">
+  Overview
+  <app-gojs-overview #myOverview [initOverview]='initOverview' [divClassName]='oDivClassName'
+    [observedDiagram]='observedDiagram'></app-gojs-overview>
+</div>
+
+
+<div class="left">
+  <!-- <app-inspector [nodeData]='state.selectedNodeData' (onInspectorChange)='handleInspectorChange($event)'></app-inspector> -->
+</div>
+
+<div class="clear left box">
+  <h3>Links in app data</h3>
+  <ul>
+    <li *ngFor="let ld of state.diagramLinkData">
+      Link From: {{ld.from}}, To: {{ld.to}}, FromText: {{ ld.text }}, ToText: {{ ld.toText}}
+    </li>
+  </ul>
+</div>
+
+<div class="left box">
+  <h3>Nodes in app data</h3>
+  <ul>
+    <li *ngFor="let nd of state.diagramNodeData">
+      Node Key: {{nd.key}}, Text: {{nd.name}} <!--, Color: {{nd.items}}, Loc: {{nd.loc}}-->
+    </li>
+  </ul>
+</div>
