@@ -96,15 +96,15 @@ export class DiagramaComponent {
           }
         ),
 
-        // model: new go.GraphLinksModel(
-        //   {
-        //     nodeKeyProperty: 'key',
-        //     linkKeyProperty: 'key', // IMPORTANT! must be defined for merges and data sync when using GraphLinksModel
-        //     copiesArrays: true,
-        //     copiesArrayObjects: true,
-        //     linkCategoryProperty: "relationship",
-        //   }
-        // )
+        model: new go.GraphLinksModel(
+          {
+            nodeKeyProperty: 'key',
+            linkKeyProperty: 'key', // IMPORTANT! must be defined for merges and data sync when using GraphLinksModel
+            copiesArrays: true,
+            copiesArrayObjects: true,
+            linkCategoryProperty: "relationship",
+          }
+        )
       });
 
       // show visibility or access as a single character at the beginning of each property or method
@@ -151,10 +151,8 @@ export class DiagramaComponent {
         {
           // fromLinkable: true,
           // toLinkable: true,
-          // resizable: true,
-          // minLocation: new go.Point(),
-          // maxLocation: new go.Point(),
-          // locationSpot: go.Spot.Center,
+          resizable: true,
+          locationSpot: go.Spot.Center,
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         })
