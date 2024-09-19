@@ -6,7 +6,7 @@ import { NgDiagramHelper } from '../ng-diagram-helper/ng-diagram-helper.componen
 @Component({
   selector: 'app-gojs-overview',
   templateUrl: './overview.component.html',
-  styleUrl: './overview.component.css'
+  styleUrl: './overview.component.css',
 })
 export class OverviewComponent {
   

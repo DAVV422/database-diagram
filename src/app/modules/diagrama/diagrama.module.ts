@@ -5,9 +5,7 @@ import { DiagramaComponent } from './diagrama/diagrama.component';
 
 import { InspectorComponent } from './inspector/inspector.component'; 
 import { InspectorRowComponent } from './inspector-row/inspector-row.component';
-import { AppComponent } from '../../app.component';
 import { DiagramaRoutingModule } from './diagrama-routing.module';
-import { GojsAngularModule } from 'gojs-angular';
 import { PaletteComponent } from './palette/palette.component';
 import { CommonModule } from '@angular/common';
 
@@ -24,10 +22,10 @@ import { CommonModule } from '@angular/common';
     FormsModule,
     DiagramaRoutingModule,
     GojsModule,
-    GojsAngularModule,
   ],
-  providers: [
-    AppComponent
+  exports: [
+    PaletteComponent,
+    DiagramaComponent
   ],
 })
 export class DiagramaModule { }

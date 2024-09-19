@@ -4,12 +4,19 @@ import { DiagramaComponent } from './diagrama/diagrama.component';
 
 const routes: Routes = [
   {
-    path: '',
-    component: DiagramaComponent,
-  },
-  {
-    path: '**',
-    redirectTo: '404'
+    path: 'boards',
+    children: [
+      {
+        path: 'new-board',
+        component: DiagramaComponent
+      },
+      {
+        path: '',
+        redirectTo: 'new-board',
+        pathMatch: 'full'        
+      }
+
+    ]
   }
 ];
 

@@ -3,7 +3,7 @@ import * as go from 'gojs'
 import { PaletteComponent as Palette } from '../../gojs/palette/palette.component';
 
 @Component({
-  selector: 'diagrama-palette',
+  selector: 'app-diagrama-palette',
   templateUrl: './palette.component.html',
   styleUrl: './palette.component.css',
   encapsulation: ViewEncapsulation.ShadowDom
@@ -46,13 +46,6 @@ export class PaletteComponent {
 
         )
       ;
-      
-      palette.model = new go.GraphLinksModel(
-        {
-          copiesArrays: true,
-          copiesArrayObjects: true,
-        }
-      )
 
     return palette;
   }

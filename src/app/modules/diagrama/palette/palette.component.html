@@ -1,5 +1,7 @@
-<div class="left">
-    Palette
-    <app-gojs-palette #myPalette [initPalette]='initPalette' [divClassName]='paletteDivClassName' [nodeDataArray]='state.paletteNodeData'
-       [modelData]='state.paletteModelData'></app-gojs-palette>
-  </div>
+<span >
+    <h4 class="handle">Toolbox</h4>
+    <div class="palettebox">
+        <app-gojs-palette #myPalette [initPalette]='initPalette' [divClassName]='paletteDivClassName'
+        [nodeDataArray]='state.paletteNodeData' [modelData]='state.paletteModelData'></app-gojs-palette>
+    </div>    
+</span>

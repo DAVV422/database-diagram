@@ -5,6 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DiagramaModule } from './modules/diagrama/diagrama.module';
+import { HttpClientModule, provideHttpClient } from '@angular/common/http';
+import { GojsAngularModule } from 'gojs-angular';
 
 @NgModule({
   declarations: [
@@ -13,6 +15,8 @@ import { DiagramaModule } from './modules/diagrama/diagrama.module';
   imports: [
     BrowserModule,
     DiagramaModule,
+    GojsAngularModule,
+    HttpClientModule,
     AppRoutingModule,        
     BrowserAnimationsModule,
   ],

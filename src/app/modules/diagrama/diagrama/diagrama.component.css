@@ -4,31 +4,79 @@ body {
    font-family: 'Roboto', sans-serif;
 }
 
-.myDiagramDiv {
-  background: whitesmoke;
-  width: 700px;
-  height: 300px;
-  border: 1px solid black;
+.view-diagram{
+	width: 100%;
+	height: 100%;
+	display: grid;
+	grid-template-columns: 15% 70% 15%;
+	grid-template-rows: repeat(2, 5%) repeat(4, 22%);
+	grid-column-gap: 0px;
+	grid-row-gap: 0px;
 }
 
-.myPaletteDiv {
-  background: lightcyan;
-  border: 1px solid navy;
-  width: 125px;
-  height: 300px;
+.overview-title{
+	background-color: #9CCB19;
+	text-align: center;
+	font: bold 12px sans-serif;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 5%;
+	margin: 2px 0;
+	padding: 0;
+}
+
+.myDiagramDiv {
+  background: whitesmoke;
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
+  grid-area: 3 / 2 / 7 / 3;
 }
 
 .myOverviewDiv {
-  width: 200px;
-  height: 150px;
+  width: 98%;
+  height: 120px;
+  align-self: center;
+  justify-self: center;
   background: whitesmoke;
   border: 1px solid black;
 }
 
-.left {
-  float: left;
-  padding: 5px;
-  margin: 5px;
+.diagrama {
+	grid-area: 3 / 2 / 7 / 3;
+	float: left;
+  	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 0;
+	padding-bottom: 2px;
+}
+
+.inspector{
+	grid-area: 3 / 3 / 7 / 4;
+	float: left;
+  	padding: 5px;
+  	margin: 5px;
+}
+
+#sideBar {
+	float: left;
+	text-align: center;
+	border: 1px solid gray;
+	grid-area: 3 / 1 / 7 / 2;
+}
+
+.palette{
+	grid-area: 3 / 1 / 5 / 2;
+	float: left;
+	text-align: center;
+	border: 1px solid gray;
+}
+
+.overview{
+	justify-items: center;
+	border: 1px solid gray;
+	grid-area: 5 / 1 / 7 / 2;
 }
 
 .box {
@@ -50,36 +98,14 @@ body {
   font-size: 14px;
   padding: 3px 0px;
   color: white;
+  grid-area: 1 / 1 / 2 / 4;
 }
-
-
-/* top bar area */
-
-/* .ui-accordion .ui-accordion-content {
-  padding: 1px;
-}
-.ui-menu {
-  width: 120px;
-}
-#menuui {
-  height: 30px;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  border-radius: 2px;
-  border-color: #5f5c5c;
-}
-#menuui > li {
-   float: left;  
-}     */
-
-/* end top bar area*/
 
 #menu {
 	background: #001218;
-	height: 30px;
 	border-radius: 0px;
 	border: 2px solid #D2D2D2;
+	grid-area: 2 / 1 / 3 / 4;
 }
                 
 #menu ul, #menu li{

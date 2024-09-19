@@ -2,7 +2,7 @@ import { Input } from "@angular/core";
 import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-inspector-row',
+  selector: 'app-diagram-inspector-row',
   templateUrl: './inspector-row.component.html',
   styleUrls: ['./inspector-row.component.css']
 })

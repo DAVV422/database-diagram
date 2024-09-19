@@ -1,30 +1,25 @@
-import { ChangeDetectorRef, Component, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ViewChild, ViewEncapsulation } from '@angular/core';
 import { produce } from "immer";
 import * as go from 'gojs'
 
 import { DataSyncService } from '../../gojs/service/data-sync.service';
 import { DiagramComponent } from '../../gojs/diagram/diagram.component';
-// import { DataSyncService, PaletteComponent, DiagramComponent } from 'gojs-angular';
 
 @Component({
-  selector: 'app-diagrama',
+  selector: 'app-diagram-diagrama',
   templateUrl: './diagrama.component.html',
   styleUrl: './diagrama.component.css',
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class DiagramaComponent {
+export class DiagramaComponent implements AfterViewInit {
   @ViewChild('myDiagram', { static: true }) public myDiagramComponent!: DiagramComponent;
-
-  // Big object that holds app-level state data
-  // As of gojs-angular 2.0, immutability is expected and required of state for ease of change detection.
-  // Whenever updating state, immutability must be preserved. It is recommended to use immer for this, a small package that makes working with immutable data easy.
   public state = {
     // Diagram state props
     diagramNodeData: [
       {
         key: 1,
         name: "BankAccount",
-        properties: [
+        attributes: [
           { name: "owner", type: "String", visibility: "public" },
           { name: "balance", type: "Currency", visibility: "public", default: "0" }
         ]
@@ -32,7 +27,7 @@ export class DiagramaComponent {
       {
         key: 11,
         name: "Person",
-        properties: [
+        attributes: [
           { name: "name", type: "String", visibility: "public" },
           { name: "birth", type: "Date", visibility: "protected" }
         ]
@@ -40,21 +35,21 @@ export class DiagramaComponent {
       {
         key: 12,
         name: "Student",
-        properties: [
+        attributes: [
           { name: "classes", type: "List<Course>", visibility: "public" }
         ]
       },
       {
         key: 13,
         name: "Professor",
-        properties: [
+        attributes: [
           { name: "classes", type: "List<Course>", visibility: "public" }
         ]
       },
       {
         key: 14,
         name: "Course",
-        properties: [
+        attributes: [
           { name: "name", type: "String", visibility: "public" },
           { name: "description", type: "String", visibility: "public" },
           { name: "professor", type: "Professor", visibility: "public" },
@@ -75,14 +70,12 @@ export class DiagramaComponent {
     selectedNodeData: null, // used by InspectorComponent
   };
 
-  // public diagram: go.Diagram = new go.Diagram();
-
   public diagramDivClassName = 'myDiagramDiv';
 
   // initialize diagram / templates
   public initDiagram(): go.Diagram {
     const diagram =
-      new go.Diagram ({                
+      new go.Diagram ({
         'undoManager.isEnabled': true,
         layout: new go.TreeLayout(
           {
@@ -127,7 +120,7 @@ export class DiagramaComponent {
         new go.TextBlock(
           { isMultiline: false, editable: true },
         )
-        .bindTwoWay("text", "name")
+        .bindTwoWay('text', 'name')
         .bind("isUnderline", "scope", s => s[0] === 'c')
       )
       // property type, if known
@@ -151,64 +144,64 @@ export class DiagramaComponent {
         {
           // fromLinkable: true,
           // toLinkable: true,
-          resizable: true,
           locationSpot: go.Spot.Center,
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         })
         .add(
-          new go.Shape({ fill: "lightyellow" })
-        )
-        .add(
-          new go.Panel('Table', { defaultRowSeparatorStroke: "black" })
+          new go.Shape({ fill: "lightyellow" }),
+          new go.Panel('Table',
+            {
+              defaultRowSeparatorStroke: "black"
+            }
+          )
           // the table header
           .add(
             new go.TextBlock(
               {
-                row: 0, columnSpan: 2, margin: 3, alignment: go.Spot.Center,
+                row: 0, columnSpan: 2, margin: 3,
+                alignment: go.Spot.Center,
                 font: "bold 12pt sans-serif",
-                isMultiline: false, editable: true
+                isMultiline: true,
+                editable: true
               }
             )
-            .bindTwoWay("text", "name")
-          )
-          // properties
-          .add(
-            new go.TextBlock("Properties", { row: 1, font: "italic 10pt sans-serif" })
-            .bindObject(
-              new go.Binding("visible", "visible", v => !v).ofObject("PROPERTIES")
+              .bindTwoWay("text", "name"),
+            // properties
+            new go.TextBlock("Attributes",
+              { row: 1, font: "italic 10pt sans-serif" }
             )
-          )
-          .add(
+              .bindObject(
+                new go.Binding("visible", "visible", v => !v).ofObject("ATTRIBUTES")
+              ),
             new go.Panel("Vertical",
               {
-                name: "PROPERTIES",
+                name: "ATTRIBUTES",
                 row: 1, margin: 3,
-                stretch: go.GraphObject.Fill,
+                stretch: go.Stretch.Horizontal,
                 defaultAlignment: go.Spot.Left,
                 background: "lightyellow",
                 itemTemplate: propertyTemplate
               })
-            .bind("itemArray", "properties")
-          )
-          //PanelExpanderButton
-          .add(
+              .bind("itemArray", "attributes"),
+            //PanelExpanderButton
             go.GraphObject.build("PanelExpanderButton",
               {
                 row: 1, column: 1,
                 alignment: go.Spot.TopRight,
                 visible: false
               },
-              "PROPERTIES"
+              "ATTRIBUTES"
             )
-            .bind("visible", "properties", arr => arr.length > 0)
-          )
-          // methods
-          .add(
+            .bind("visible", "attributes", arr => arr.length > 0),
+            // methods
             new go.Panel("Vertical")
             .setProperties(
               {
+                name: "METHODS",
                 row: 2, margin: 5,
+                stretch: go.Stretch.Horizontal,
+                defaultAlignment: go.Spot.Left,
                 background: "lightyellow",
               }
             )
@@ -352,19 +345,18 @@ export class DiagramaComponent {
   }
 
   // When the diagram model changes, update app data to reflect those changes. Be sure to use immer's "produce" function to preserve immutability
-  public diagramModelChange = (changes: go.IncrementalData | any) => {
-    if (!changes) return;
+  public diagramModelChange = (changes: go.IncrementalData) => {
+    console.log("modelChange")
+    if (!(changes) || (this.state.skipsDiagramUpdate)) return;
     const appComp: DiagramaComponent = this;
     this.state = produce(this.state, draft => {
-      // set skipsDiagramUpdate: true since GoJS already has this update
-      // this way, we don't log an unneeded transaction in the Diagram's undoManager history
       draft.skipsDiagramUpdate = true;
       (draft.diagramNodeData as any) = DataSyncService.syncNodeData(changes, draft.diagramNodeData, appComp.observedDiagram?.model);
       (draft.diagramLinkData as any) = DataSyncService.syncLinkData(changes, draft.diagramLinkData, (appComp.observedDiagram as any).model);
       (draft.diagramModelData as any) = DataSyncService.syncModelData(changes, draft.diagramModelData);
       // If one of the modified nodes was the selected node used by the inspector, update the inspector selectedNodeData object
       const modifiedNodeDatas = changes.modifiedNodeData;
-      if (modifiedNodeDatas && draft.selectedNodeData) {
+      if (modifiedNodeDatas && draft.selectedNodeData && modifiedNodeDatas === draft.selectedNodeData ) {
         for (let i = 0; i < modifiedNodeDatas.length; i++) {
           const mn = modifiedNodeDatas[i];
           const nodeKeyProperty = appComp.myDiagramComponent.diagram!.model.nodeKeyProperty as string;
@@ -395,12 +387,20 @@ export class DiagramaComponent {
 
     const appComp: DiagramaComponent = this;
     // listener for inspector
-    this.myDiagramComponent.diagram!.addDiagramListener('ChangedSelection', (e) => {
+    this.myDiagramComponent.diagram!.addDiagramListener('ChangedSelection', (e) => {      
+      if( this.state.skipsDiagramUpdate ){
+        console.log(this.state.skipsDiagramUpdate)
+        this.state = produce(this.state, draft => {
+          draft.skipsDiagramUpdate = false;
+        });
+        console.log(this.state.skipsDiagramUpdate)
+        return;
+      }
       if (e.diagram.selection.count === 0) {
         appComp.selectedNodeData = null;
       }
       const node = e.diagram.selection.first();
-      appComp.state = produce(appComp.state, (draft: any) => {
+      appComp.state = produce(appComp.state, (draft: any) => {        
         if (node instanceof go.Node) {
           var idx = draft.diagramNodeData.findIndex((nd: any) => nd.key == node.data.key);
           var nd = draft.diagramNodeData[idx];
@@ -418,12 +418,11 @@ export class DiagramaComponent {
    * @param changedPropAndVal An object with 2 entries: "prop" (the node data prop changed), and "newVal" (the value the user entered in the inspector <input>)
    */
   public handleInspectorChange(changedPropAndVal: any) {
-
     const path = changedPropAndVal.prop;
     const value = changedPropAndVal.newVal;
 
     this.state = produce(this.state, (draft:any) => {
-      var data = draft.selectedNodeData;
+      let data = draft.selectedNodeData;
       data[path] = value;
       const key = data.key;
       const idx = draft.diagramNodeData.findIndex((nd: any) => nd.key == key);
@@ -682,4 +681,3 @@ export class DiagramaComponent {
 // // export function basicOrderProcess() { loadJSON('BPMNdata/BasicOrderProcess.json'); }
 // export function cancel1() { closeElement('openDocument'); }
 // export function cancel2() { closeElement('removeDocument'); }
-
