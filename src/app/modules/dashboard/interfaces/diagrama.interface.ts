@@ -32,6 +32,7 @@ export interface IInvitacionCreate {
 }
 
 export interface IDiagrama {
+    id: string
     nombre: string;
     fecha: Date;
     nodos: NodoDiagrama;
@@ -41,7 +42,20 @@ export interface IDiagrama {
     invitaciones?: IInvitacion[];
 }
 
+export interface IDiagramaDB {
+    id: string
+    nombre: string;
+    fecha: Date;
+    nodos: string;
+    links: string;
+    isDeleted?: boolean;
+    usuario?: IUser;
+    invitaciones?: IInvitacion[];
+}
+
 export interface IDiagramaCreate {
+    nombre: string;
+    fecha: Date;
     nodos: NodoDiagrama;
     attributes: NodoAtributo;
     isDeleted?: boolean;

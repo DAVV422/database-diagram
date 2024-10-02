@@ -41,9 +41,38 @@ export class PaletteComponent {
                 isMultiline: false, editable: true
               }
             )
-            .bindTwoWay("text", "name")
-          )
-
+            .bindTwoWay("text", "name"),
+            new go.TextBlock("Attributes"),
+            new go.Panel("Vertical",{
+              name: "ATTRIBUTES",
+              row: 1, margin: 3,
+              stretch: go.Stretch.Horizontal,
+              defaultAlignment: go.Spot.Left,
+              background: "lightyellow",
+              itemTemplate: new go.Panel('Horizontal')
+                .add(
+                  new go.TextBlock()                  
+                )
+                .add(
+                  new go.TextBlock()
+                )
+                .add(
+                  new go.TextBlock("")
+                )
+                .add(
+                  new go.TextBlock()
+                )
+            })
+            .bind("itemArray", "attributes"),
+            new go.Panel("Vertical")
+            .setProperties({
+              name: "METHODS",
+              row: 2, margin: 5,
+              stretch: go.Stretch.Horizontal,
+              defaultAlignment: go.Spot.Left,
+              background: "lightyellow",
+            })
+          )          
         )
       ;
 

@@ -9,6 +9,8 @@ import { DiagramaRoutingModule } from './diagrama-routing.module';
 import { PaletteComponent } from './palette/palette.component';
 import { CommonModule } from '@angular/common';
 import { JsonFileService } from './services/jsonFile.service';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from '../../core/interceptor/auth.interceptor';
 
 
 @NgModule({

@@ -1,20 +1,58 @@
-<div *ngIf='nodeData' id="myInspectorDiv">
+<div *ngIf='isNode()' id="myInspectorDiv">
+   <!-- Nombre del nodo -->
     <table>
       <tbody>
-        <tr *ngFor="let entry of nodeData | keyvalue">
-          <ng-template [ngIf]="isNotAttribute(entry.key)" [ngIfElse]="atributos">
-            <app-diagram-inspector-row *ngIf="entry.key !== 'id'" [id]="entry.key" [value]="entry.value" (onInputChangeEmitter)="onInputChange($event)"></app-diagram-inspector-row>
-          </ng-template>
-          <ng-template #atributos>
-            <tr>
-              Atributo
-            </tr>
-          </ng-template>
+        <tr>
+          <label>Tabla:</label>
+        </tr>
+        <tr>
+          <input [ngModel]="selectedNode!.data.name" (ngModelChange)="onNodeNameChange($event)" />
+        </tr>
+        <tr>
+          <label>Atributos:</label>
+        </tr>
+        <tr *ngFor="let attr of selectedNode!.data.attributes; let i = index">
+          <!-- Botón para eliminar el atributo -->
+          <button (click)="removeAttribute(i)">Remover {{ attr.name }}</button>
         </tr>
       </tbody>
     </table>
-  </div>
+    <!-- Botón para añadir un nuevo atributo -->
+   <button (click)="addAttribute()">Add Attribute</button>
+</div>
   
-  <div *ngIf='!nodeData'>
-    Select a Node to use Inspector
+<div class="text-sm font-semibold text-muted-foreground" *ngIf='isLink()'>
+  <table>
+    <tbody>
+      <tr>
+        <label>Relacion:</label>
+      </tr>
+      <tr>
+        <!-- <input [ngModel]="relacion" (ngModelChange)="onLinkChange($event)" /> -->
+        <select [ngModel]="relacion" (ngModelChange)="onLinkChange($event)">
+          <option *ngFor="let option of relaciones" [value]="option">{{ option }}</option>
+        </select>
+      </tr>
+
+      <ng-container *ngIf="multiplicidad === true">
+        <tr>
+          <label>Multiplicidad:</label>
+        </tr>
+        <tr>
+          <input [ngModel]="fromLink" (ngModelChange)="onLinkTextChange($event)" />
+        </tr>
+        <tr>
+          <label>Multiplicidad:</label>
+        </tr>
+        <tr>
+          <input [ngModel]="toLink" (ngModelChange)="onLinkToTextChange($event)" />
+        </tr>
+      </ng-container>
+      
+    </tbody>
+  </table>
+</div>
+
+  <div class="text-sm font-semibold text-muted-foreground" *ngIf='!selectedNode'>
+    <label>Selecciona un elemento para Inspecionar</label>
   </div>

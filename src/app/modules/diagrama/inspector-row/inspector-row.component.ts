@@ -1,4 +1,4 @@
-import { Input } from "@angular/core";
+import { Input, OnInit } from "@angular/core";
 import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
@@ -6,7 +6,8 @@ import { Component, EventEmitter, Output } from '@angular/core';
   templateUrl: './inspector-row.component.html',
   styleUrls: ['./inspector-row.component.css']
 })
-export class InspectorRowComponent {
+export class InspectorRowComponent implements OnInit {
+  titulo!: string;
 
   @Input()
   public id!: string
@@ -17,7 +18,16 @@ export class InspectorRowComponent {
   @Output()
   public onInputChangeEmitter: EventEmitter<any> = new EventEmitter<any>();
 
-  constructor() {}
+  constructor() { }
+
+  ngOnInit(): void {
+    console.log(this.id);
+    if(this.id === "name") {
+      this.titulo = "Nombre";
+    } else {
+      this.titulo = "Atributos";
+    }
+  }
 
   public onInputChange(e: any) {
     // when <input> is changed, emit an Object up, with what property changed, and to what new value

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NftAuctionsTableItemComponent } from '../nft-auctions-table-item/nft-auctions-table-item.component';
 import { NgFor } from '@angular/common';
-import { IDiagrama } from '../../../interfaces/diagrama.interface';
+import { IDiagrama, IDiagramaDB } from '../../../interfaces/diagrama.interface';
 
 @Component({
     selector: '[nft-auctions-table]',
@@ -10,7 +10,9 @@ import { IDiagrama } from '../../../interfaces/diagrama.interface';
     imports: [NgFor, NftAuctionsTableItemComponent],
 })
 export class NftAuctionsTableComponent implements OnInit {
-  public activeAuction: IDiagrama[] = [];
+
+  @Input()
+  public diagramas: IDiagramaDB[] | any = [];
 
   constructor() { }
 

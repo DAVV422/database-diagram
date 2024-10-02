@@ -1,13 +1,14 @@
 <div class="view-diagram">
   <!--START menu bar -->
   <!-- <div class="top-menu"> -->
-    <div id="currentFile">{{ UnsavedFileName }}</div>
+    <div id="currentFile" #currentFile>{{ UnsavedFileName }}</div>
     <nav id="menu">
       <ul id="menuui">
         <li><a>File</a>
           <ul class='sub-menus'>
             <li><a id="saveDocument" (click)="saveDocument()">Save</a></li>
-            <li><a id="saveDocumentAs" (click)="saveDocumentAs()">Save As...</a></li>
+            <li><a id="exportXMI" (click)="exportToXMI()">export XMI</a></li>
+            <li><a id="exportImage" (click)="exportToImage()">export Image</a></li>
           </ul>
         </li>
         <li><a>Edit</a>
@@ -21,12 +22,7 @@
             <li><a id="selectAll" (click)="selectAll()">Select All</a></li>
           </ul>
         </li>
-        <li><a>Options</a>
-          <ul class='sub-menus'>
-            <li><a style="width: 120px;">
-                <input id="grid" type="checkbox" name="options" value="grid">Grid</a></li>
-          </ul>
-        </li>
+        <li><a (click)="salir()">Salir</a>
       </ul>
     </nav>
   <!-- </div> -->
@@ -53,7 +49,7 @@
   </div>
 
   <div class="inspector">
-    <app-diagram-inspector [nodeData]='state.selectedNodeData'
-      (onInspectorChange)='handleInspectorChange($event)'></app-diagram-inspector>
+    <app-diagram-inspector [selectedNode]='state.selectedNodeData'
+      ></app-diagram-inspector>
   </div>
 </div>

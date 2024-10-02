@@ -54,9 +54,10 @@ export class SignInComponent implements OnInit {
 
     this.authService.login(email, password).
       subscribe(
-        resp => {
-          localStorage.setItem('token', resp.accessToken);
-          localStorage.setItem('user', JSON.stringify(resp.user));
+        (resp: any) => {
+          console.log(resp);
+          localStorage.setItem('token', resp.data.accessToken);
+          localStorage.setItem('user', JSON.stringify(resp.data.user));
           this._router.navigate(['dashboard']);          
         },
         err => {
@@ -68,7 +69,6 @@ export class SignInComponent implements OnInit {
 
           console.log(errorMessage)
         }
-      );
-    // this._router.navigate(['/']);
+      );    
   }
 }

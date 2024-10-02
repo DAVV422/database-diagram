@@ -8,7 +8,6 @@ import { AuthService } from '../services/auth.service';
 })
 export class AuthGuard implements CanMatch, CanActivate {
 
-
   constructor(
     private authService: AuthService,
     private router: Router

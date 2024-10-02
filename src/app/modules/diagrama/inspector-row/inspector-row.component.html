@@ -1,7 +1,11 @@
-<td>{{id}}</td>
 <td>
-  <input
+  <tr>
+    {{ titulo }}
+  </tr>
+  <tr>
+    <input
     (change)="onInputChange($event)"
     [ngModel]="value"
   />
+  </tr>
 </td>

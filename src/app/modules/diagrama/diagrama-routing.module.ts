@@ -6,10 +6,10 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 const routes: Routes = [
   {
     path: '',
-    canActivate: [AuthGuard],  
+    canActivate: [AuthGuard],
     children: [
       {
-        path: 'board',
+        path: 'board/:id',
         component: DiagramaComponent
       },
       {

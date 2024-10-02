@@ -1,9 +1,12 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { produce } from "immer";
 import * as go from 'gojs'
 
 import { DataSyncService } from '../../gojs/service/data-sync.service';
 import { DiagramComponent } from '../../gojs/diagram/diagram.component';
+import { DiagramaService } from '../services/diagrama.service';
+import { IDiagrama, IDiagramaDB } from '../../dashboard/interfaces/diagrama.interface';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-diagram-diagrama',
@@ -11,63 +14,19 @@ import { DiagramComponent } from '../../gojs/diagram/diagram.component';
   styleUrl: './diagrama.component.css',
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class DiagramaComponent implements AfterViewInit {
+export class DiagramaComponent implements AfterViewInit, OnInit {
   @ViewChild('myDiagram', { static: true }) public myDiagramComponent!: DiagramComponent;
+  @ViewChild('currentFile') currentFile: ElementRef<HTMLDivElement> | undefined;
 
-  public UnsavedFileName: String = '(Unsaved File)';
+  idDiagrama!: string;
+
+  UnsavedFileName: string = 'unsaved';
+  diagramaDB?: IDiagramaDB;
 
   public state = {
     // Diagram state props
-    diagramNodeData: [
-      {
-        key: 1,
-        name: "BankAccount",
-        attributes: [
-          { name: "owner", type: "String", visibility: "public" },
-          { name: "balance", type: "Currency", visibility: "public", default: "0" }
-        ]
-      },
-      {
-        key: 11,
-        name: "Person",
-        attributes: [
-          { name: "name", type: "String", visibility: "public" },
-          { name: "birth", type: "Date", visibility: "protected" }
-        ]
-      },
-      {
-        key: 12,
-        name: "Student",
-        attributes: [
-          { name: "classes", type: "List<Course>", visibility: "public" }
-        ]
-      },
-      {
-        key: 13,
-        name: "Professor",
-        attributes: [
-          { name: "classes", type: "List<Course>", visibility: "public" }
-        ]
-      },
-      {
-        key: 14,
-        name: "Course",
-        attributes: [
-          { name: "name", type: "String", visibility: "public" },
-          { name: "description", type: "String", visibility: "public" },
-          { name: "professor", type: "Professor", visibility: "public" },
-          { name: "location", type: "String", visibility: "public" },
-          { name: "times", type: "List<Time>", visibility: "public" },
-          { name: "prerequisites", type: "List<Course>", visibility: "public" },
-          { name: "students", type: "List<Student>", visibility: "public" }
-        ]
-      }
-    ],
-    diagramLinkData: [
-      { from: 12, to: 11, text: "", toText: "" },
-      { from: 13, to: 11, text: "", toText: "" },
-      { from: 14, to: 13, relationship: "Association", text: "0..N", toText: "1" }
-    ],
+    diagramNodeData: [ ],
+    diagramLinkData: [ ],
     diagramModelData: { prop: 'value' },
     skipsDiagramUpdate: false,
     selectedNodeData: null, // used by InspectorComponent
@@ -79,19 +38,8 @@ export class DiagramaComponent implements AfterViewInit {
   public initDiagram(): go.Diagram {
     const diagram =
       new go.Diagram ({
-        'undoManager.isEnabled': true,
-        layout: new go.TreeLayout(
-          {
-            // this only lays out in trees nodes connected by "generalization" links
-            angle: 90,
-            path: go.TreeLayout.PathSource,  // links go from child to parent
-            setsPortSpot: false,  // keep Spot.AllSides for link connection spot
-            setsChildPortSpot: false,  // keep Spot.AllSides
-            // nodes not connected by "generalization" links are laid out horizontally
-            arrangement: go.TreeLayout.ArrangementHorizontal
-          }
-        ),
-
+        'undoManager.isEnabled': true,        
+        allowMove: true,
         model: new go.GraphLinksModel(
           {
             nodeKeyProperty: 'key',
@@ -134,28 +82,31 @@ export class DiagramaComponent implements AfterViewInit {
       .add(
         new go.TextBlock({ isMultiline: false, editable: true })
         .bindTwoWay("text", "type")
-      )
-      // property default value, if any
-      .add(
-        new go.TextBlock({ isMultiline: false, editable: true })
-        .bind("text", "type", s => s ? " = " + s : "")
       );
 
     // define the Node template
     diagram.nodeTemplate =
-      new go.Node('Auto', // the whole node panel
+      new go.Node(go.Panel.Auto, // the whole node panel
         {
-          // fromLinkable: true,
-          // toLinkable: true,
-          locationSpot: go.Spot.Center,
-          fromSpot: go.Spot.AllSides,
-          toSpot: go.Spot.AllSides
-        })
-        .add(
-          new go.Shape({ fill: "lightyellow" }),
+          locationSpot: go.Spot.Center,       
+          // fromSpot: go.Spot.AllSides,
+        }
+      )        
+        .add(          
+          new go.Shape(
+            { 
+              fill: "lightyellow",              
+              cursor: "pointer",
+              portId: "",
+              fromLinkable: true,
+              toLinkable: true,
+              fromSpot: go.Spot.AllSides,
+              toSpot: go.Spot.AllSides, 
+           }
+          ),
           new go.Panel('Table',
             {
-              defaultRowSeparatorStroke: "black"
+              defaultRowSeparatorStroke: "black",
             }
           )
           // the table header
@@ -209,13 +160,18 @@ export class DiagramaComponent implements AfterViewInit {
               }
             )
           )
-        );
+        )
+        .bindTwoWay("location", "loc", go.Point.parse, go.Point.stringifyFixed(1));
 
         const linkStyle = () => {
           return {
             isTreeLink: false,
+            relinkableFrom: true,
+            relinkableTo: true,
+            reshapable: true,
+            resegmentable: true,
             fromEndSegmentLength: 0,
-            toEndSegmentLength: 0
+            toEndSegmentLength: 0            
           };
         }
 
@@ -248,16 +204,15 @@ export class DiagramaComponent implements AfterViewInit {
               }
             )
             .add(
-              new go.Shape("RoundedRectangle", {fill: "#f7f9fc"})
-              .setProperties({stroke: "#eeeeee"})
+              new go.Shape("RoundedRectangle", { fill: "#f7f9fc" })
+              .setProperties({ stroke: "#eeeeee" })
             )
             //the "from" label
             .add(
               new go.TextBlock(
                 {
                   textAlign: "center",
-                  font: "bold 12px sans-serif",
-                  // stroke: "black",
+                  font: "bold 12px sans-serif",                  
                   background: "#f7f9fc",
                   segmentOffset: new go.Point(NaN, NaN),
                   segmentOrientation: go.Link.OrientUpright
@@ -303,9 +258,6 @@ export class DiagramaComponent implements AfterViewInit {
           .add(
             new go.Shape({ strokeDashArray: [3, 2] })
           )
-          .add(
-            new go.Shape({ toArrow: "Triangle", fill: "white" })
-          )
         );
 
         diagram.linkTemplateMap.add("Dependency",
@@ -326,9 +278,6 @@ export class DiagramaComponent implements AfterViewInit {
           .add(
             new go.Shape({ fromArrow: "StretchedDiamond", scale: 1.3 })
           )
-          .add(
-            new go.Shape({ toArrow: "OpenTriangle" })
-          )
         );
 
         diagram.linkTemplateMap.add("Aggregation",
@@ -339,39 +288,58 @@ export class DiagramaComponent implements AfterViewInit {
           .add(
             new go.Shape({ fromArrow: "StretchedDiamond", fill: "white", scale: 1.3 })
           )
-          .add(
-            new go.Shape({ toArrow: "OpenTriangle" })
-          )
         )
 
     return diagram;
   }
 
   // When the diagram model changes, update app data to reflect those changes. Be sure to use immer's "produce" function to preserve immutability
-  public diagramModelChange = (changes: go.IncrementalData) => {
-    console.log("modelChange")
+  public diagramModelChange = (changes: go.IncrementalData) => {    
     if (!(changes) || (this.state.skipsDiagramUpdate)) return;
     const appComp: DiagramaComponent = this;
     this.state = produce(this.state, draft => {
       draft.skipsDiagramUpdate = true;
-      (draft.diagramNodeData as any) = DataSyncService.syncNodeData(changes, draft.diagramNodeData, appComp.observedDiagram?.model);
-      (draft.diagramLinkData as any) = DataSyncService.syncLinkData(changes, draft.diagramLinkData, (appComp.observedDiagram as any).model);
-      (draft.diagramModelData as any) = DataSyncService.syncModelData(changes, draft.diagramModelData);
+      const nodeData: any = DataSyncService.syncNodeData(changes, draft.diagramNodeData);
+      const linkData: any = DataSyncService.syncLinkData(changes, draft.diagramLinkData);
+      const modelData: any = DataSyncService.syncModelData(changes, draft.diagramModelData);
+      console.log(nodeData);
+      draft.diagramNodeData = nodeData;
+      draft.diagramLinkData = linkData;
+      draft.diagramModelData = modelData;
       // If one of the modified nodes was the selected node used by the inspector, update the inspector selectedNodeData object
       const modifiedNodeDatas = changes.modifiedNodeData;
-      if (modifiedNodeDatas && draft.selectedNodeData && modifiedNodeDatas === draft.selectedNodeData ) {
+      if (modifiedNodeDatas && draft.selectedNodeData) {
         for (let i = 0; i < modifiedNodeDatas.length; i++) {
-          const mn = modifiedNodeDatas[i];
-          const nodeKeyProperty = appComp.myDiagramComponent.diagram!.model.nodeKeyProperty as string;
-          if (mn[nodeKeyProperty] === (draft.selectedNodeData as go.ObjectData)[nodeKeyProperty]) {
-            (draft.selectedNodeData as any) = mn;
+          const mn: any = modifiedNodeDatas[i];
+          const nodeKeyProperty: any = appComp.myDiagramComponent.diagram!.model.nodeKeyProperty as string;
+          if (mn[nodeKeyProperty] === draft.selectedNodeData![nodeKeyProperty]) {
+            draft.selectedNodeData = mn;
+            console.log(draft.selectedNodeData);
           }
         }
       }
     });
   };
 
-  constructor(private cdr: ChangeDetectorRef) { }
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute, 
+    private router: Router,
+    private readonly diagramaService: DiagramaService
+  ) { }
+
+  ngOnInit(): void {
+    this.idDiagrama = this.route.snapshot.params['id'];    
+      this.diagramaService.getDiagram(this.idDiagrama).
+        subscribe(
+          (resp: any) => {
+            this.diagramaDB = resp.data;
+            (this.state.diagramNodeData as any) = this.diagramaDB!.nodos != "[]" ? JSON.parse(this.diagramaDB!.nodos as string) : [];
+            (this.state.diagramLinkData as any) = this.diagramaDB!.links != "[]" ? JSON.parse(this.diagramaDB!.links as string) : [];          
+            (this.currentFile!.nativeElement.textContent as any) = this.diagramaDB?.nombre;
+          }
+        );    
+  }
 
   // Overview Component testing
   public oDivClassName = 'myOverviewDiv';
@@ -390,24 +358,16 @@ export class DiagramaComponent implements AfterViewInit {
 
     const appComp: DiagramaComponent = this;
     // listener for inspector
-    this.myDiagramComponent.diagram!.addDiagramListener('ChangedSelection', (e) => {      
-      if( this.state.skipsDiagramUpdate ){
-        console.log(this.state.skipsDiagramUpdate)
-        this.state = produce(this.state, draft => {
-          draft.skipsDiagramUpdate = false;
-        });
-        console.log(this.state.skipsDiagramUpdate)
-        return;
-      }
+    this.myDiagramComponent.diagram!.addDiagramListener('ChangedSelection', (e) => {
       if (e.diagram.selection.count === 0) {
         appComp.selectedNodeData = null;
       }
       const node = e.diagram.selection.first();
-      appComp.state = produce(appComp.state, (draft: any) => {        
+      appComp.state = produce(appComp.state, (draft: any) => {
         if (node instanceof go.Node) {
-          var idx = draft.diagramNodeData.findIndex((nd: any) => nd.key == node.data.key);
-          var nd = draft.diagramNodeData[idx];
-          draft.selectedNodeData = nd;
+          draft.selectedNodeData = node;
+        } else if (node instanceof go.Link) {          
+          draft.selectedNodeData = node;
         } else {
           draft.selectedNodeData = null;
         }
@@ -425,39 +385,16 @@ export class DiagramaComponent implements AfterViewInit {
     const value = changedPropAndVal.newVal;
 
     this.state = produce(this.state, (draft:any) => {
-      let data = draft.selectedNodeData;
+      let data: any = draft.selectedNodeData!;
+      console.log(draft.selectedNodeData);
       data[path] = value;
-      const key = data.key;
+      const key = data!.id;
       const idx = draft.diagramNodeData.findIndex((nd: any) => nd.key == key);
       if (idx >= 0) {
         draft.diagramNodeData[idx] = data;
         draft.skipsDiagramUpdate = false; // we need to sync GoJS data with this new app state, so do not skips Diagram update
       }
     });
-  }
-
-  // Guarda el estado del diagrama en un archivo JSON
-  saveStateToFile(): void {
-    // this.jsonFileService.saveToFile(this.state, 'diagramState.json');
-  }
-
-  loadJson(event: Event): void {
-    const fileInput = event.target as HTMLInputElement;
-    const file = fileInput.files?.[0];
-
-    if (file) {
-      const fileReader = new FileReader();
-
-      fileReader.onload = (e) => {
-        const result = e.target?.result as string;
-        if (result) {
-          this.state = JSON.parse(result);
-          // Aquí puedes realizar acciones adicionales, como actualizar el diagrama con el nuevo estado
-        }
-      };
-
-      fileReader.readAsText(file);
-    }
   }
 
   public toggleDarkMode() {
@@ -475,18 +412,18 @@ export class DiagramaComponent implements AfterViewInit {
   }
 
   public getCurrentFileName(): string {
-    const currentFile = document.getElementById('currentFile') as HTMLDivElement;
-    const name = currentFile.textContent || '';
+    const currentFile = this.currentFile?.nativeElement;
+    const name = currentFile?.textContent || '';
     if (name && name[name.length - 1] === '*') return name.slice(0, -1);
     return name;
   }
 
   public setCurrentFileName(name: string) {
-    const currentFile = document.getElementById('currentFile') as HTMLDivElement;
+    // const currentFile = document.getElementById('currentFile') as HTMLDivElement;
     if (this.myDiagramComponent.diagram!.isModified) {
       name += '*';
     }
-    currentFile.textContent = name;
+    this.currentFile!.nativeElement.textContent = name;
   }
 
   public checkLocalStorage() {
@@ -494,19 +431,27 @@ export class DiagramaComponent implements AfterViewInit {
   }
 
   // saves the current floor plan to local storage
-  public saveDocument() {
-    if (this.checkLocalStorage()) {
-      const saveName = this.getCurrentFileName();
+  public saveDocument() {    
+      const saveName = this.diagramaDB?.nombre;
       if (saveName === this.UnsavedFileName) {
         this.saveDocumentAs();
       } else {
         // saveDiagramProperties();
-        window.localStorage.setItem(saveName, this.myDiagramComponent.diagram!.model.toJson());
-        this.myDiagramComponent.diagram!.isModified = false;
-      }
+        const diagramaSTRING = this.myDiagramComponent.diagram!.model.toJson();
+        const diagramaJSON = JSON.parse(diagramaSTRING);
+        console.log(diagramaJSON);
+        const nodos = JSON.stringify(diagramaJSON.nodeDataArray);
+        const links = JSON.stringify(diagramaJSON.linkDataArray);         
+          this.diagramaService.updateDiagram(this.idDiagrama, saveName!, nodos, links).
+          subscribe(
+            (resp : any) => {
+              console.log(resp);
+              this.diagramaDB = resp.data;
+            }
+          );        
     }
   }
-  
+
   // saves floor plan to local storage with a new name
   public saveDocumentAs() {
     if (this.checkLocalStorage()) {
@@ -514,8 +459,18 @@ export class DiagramaComponent implements AfterViewInit {
       if (saveName && saveName !== this.UnsavedFileName) {
         this.setCurrentFileName(saveName);
         // saveDiagramProperties();
-        window.localStorage.setItem(saveName, this.myDiagramComponent.diagram!.model.toJson());
+        const diagramaSTRING = this.myDiagramComponent.diagram!.model.toJson();
+        const diagramaJSON = JSON.parse(diagramaSTRING);
+        const nodos = JSON.stringify(diagramaJSON.nodeDataArray);
+        const links = JSON.stringify(diagramaJSON.linkDataArray);        
         this.myDiagramComponent.diagram!.isModified = false;
+        this.diagramaService.updateDiagram(this.idDiagrama, saveName!, nodos, links).
+          subscribe(
+            (resp : any) => {
+              console.log(resp);
+              this.diagramaDB = resp.data;
+            }
+          );
       }
     }
   }
@@ -527,6 +482,84 @@ public copySelection() { this.myDiagramComponent.diagram!.commandHandler.copySel
 public pasteSelection() { this.myDiagramComponent.diagram!.commandHandler.pasteSelection(); }
 public deleteSelection() { this.myDiagramComponent.diagram!.commandHandler.deleteSelection(); }
 public selectAll() { this.myDiagramComponent.diagram!.commandHandler.selectAll(); }
+
+  salir(){
+    this.router.navigate(['dashboard/diagramas']);
+  }
+
+  exportToXMI() {
+    // diagram: go.Diagram
+    const diagram: go.Diagram = this.myDiagramComponent.diagram!;
+    // Empezar la estructura básica de un archivo XMI
+    let xmi = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xmi += '<XMI xmi.version="2.1" xmlns:uml="http://schema.omg.org/spec/UML/2.0">\n';
+    xmi += '  <uml:Model xmi:type="uml:Model" name="GoJS Diagram">\n';
+  
+    // Exportar los nodos como clases UML
+    diagram.model.nodeDataArray.forEach((node: any) => {
+      xmi += `    <uml:Class xmi:type="uml:Class" name="${node.name || node.key}">\n`;
+  
+      if (node.attributes) {
+        node.attributes.forEach((attr: any) => {
+          xmi += `      <uml:Property name="${attr.name}" type="${attr.type}" visibility="${attr.visibility}" />\n`;
+        });
+      }
+  
+      xmi += '    </uml:Class>\n';
+    });
+  
+    // Exportar los enlaces (relaciones) entre nodos
+    (diagram.model as any).linkDataArray.forEach((link: any) => {
+      const fromNode = diagram.findNodeForKey(link.from);
+      const toNode = diagram.findNodeForKey(link.to);
+  
+      if (fromNode && toNode) {
+        xmi += `    <uml:Association memberEnd="${fromNode.data.key} ${toNode.data.key}" />\n`;
+      }
+    });
+  
+    // Cerrar las etiquetas de UML y XMI
+    xmi += '  </uml:Model>\n';
+    xmi += '</XMI>';
+  
+    // Descargar el archivo generado
+    this.downloadXMI(xmi);
+  }
+  
+  // Función para descargar el archivo XMI
+  downloadXMI(xmiContent: string) {
+    const blob = new Blob([xmiContent], { type: 'text/xml' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'diagram.xmi';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+
+  exportToImage() {
+    const diagram = this.myDiagramComponent.diagram!;
+    // Generar la imagen del diagrama
+    const imgData = diagram.makeImageData({
+      background: "white", // Color de fondo para la imagen
+      type: "image/png",    // Tipo de imagen (puede ser 'image/jpeg' también)
+      // scale: 1,             // Escala de la imagen
+      // maxSize: new go.Size(Infinity, Infinity), // Generar imagen completa
+    });
+  
+    // Crear un enlace para descargar la imagen
+    this.downloadImage((imgData as any));
+  }
+  
+  // Función para descargar la imagen
+  downloadImage(imageData: string) {
+    const a = document.createElement('a');
+    a.href = imageData;          // URL de la imagen (en formato base64)
+    a.download = 'diagram.png';  // Nombre del archivo a descargar
+    a.click();
+  }
+  
 
 }
 

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
 import { environment } from './../../../../environments/environment';
-import { IDiagrama, IDiagramaCreate } from '../interfaces/diagrama.interface';
+import { IDiagrama, IDiagramaCreate, IDiagramaDB } from '../interfaces/diagrama.interface';
 
 @Injectable({providedIn: 'root'})
 export class DiagramaService {
@@ -13,20 +13,24 @@ export class DiagramaService {
         private http: HttpClient
     ) { }
     
-    crearDiagrama(diagrama: IDiagramaCreate): Observable<IDiagrama> {
-        return this.http.post<IDiagrama>(`${ this.baseUrl }`, diagrama);
+    crearDiagrama(diagrama: IDiagramaCreate): Observable<IDiagramaDB> {
+        return this.http.post<IDiagramaDB>(`${ this.baseUrl }`, diagrama);
     }
 
-    getDiagramasCreados(userId: string): Observable<IDiagrama[]> {
-        return this.http.get<IDiagrama[]>(`${this.baseUrl}/created/${userId}`);
+    getDiagramasCreados(userId: string): Observable<IDiagramaDB[]> {
+        return this.http.get<IDiagramaDB[]>(`${ this.baseUrl }/created/${ userId }`);
     }
 
-    getDiagramasInvitados(userId: string): Observable<IDiagrama[]> {
-        return this.http.get<IDiagrama[]>(`${this.baseUrl}/byinvitacion/${userId}`);
+    getDiagramasInvitados(userId: string): Observable<IDiagramaDB[]> {
+        return this.http.get<IDiagramaDB[]>(`${ this.baseUrl }/byinvitacion/${ userId }`);
     }
 
-    getDiagrama(diagramaId: string): Observable<IDiagrama | null> {
-        return this.http.get<IDiagrama>(`${this.baseUrl}/${diagramaId}`).
+    getInvitaciones(userId: string): Observable<IDiagramaDB[]> {
+        return this.http.get<IDiagramaDB[]>(`${ this.baseUrl }/invitaciones/${ userId }`);
+    }
+
+    getDiagrama(diagramaId: string): Observable<IDiagramaDB | null> {
+        return this.http.get<IDiagramaDB>(`${this.baseUrl}/${diagramaId}`).
         pipe(
             catchError(err => of(null))
           );

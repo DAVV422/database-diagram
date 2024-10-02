@@ -1,7 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { AngularSvgIconModule } from 'angular-svg-icon';
-import { IDiagrama } from '../../../interfaces/diagrama.interface';
+import { IDiagrama, IDiagramaDB } from '../../../interfaces/diagrama.interface';
+import { Router } from '@angular/router';
 
 @Component({
     selector: '[nft-auctions-table-item]',
@@ -10,9 +11,20 @@ import { IDiagrama } from '../../../interfaces/diagrama.interface';
     imports: [AngularSvgIconModule, CurrencyPipe],
 })
 export class NftAuctionsTableItemComponent implements OnInit {
-  @Input() auction = <IDiagrama>{};
+  @Input() auction = <IDiagramaDB>{};
 
-  constructor() {}
+  public fecha!: string;
 
-  ngOnInit(): void {}
+  constructor(
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.fecha = new Date(this.auction.fecha).toLocaleString();    
+  }
+
+  irDiagrama(): void {
+    const idDiagrama = this.auction.id
+    this.router.navigate(['diagramador/board', idDiagrama]);
+  }
 }
