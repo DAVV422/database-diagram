@@ -5,7 +5,7 @@ import * as go from 'gojs'
 import { DataSyncService } from '../../gojs/service/data-sync.service';
 import { DiagramComponent } from '../../gojs/diagram/diagram.component';
 import { DiagramaService } from '../services/diagrama.service';
-import { IDiagrama, IDiagramaDB } from '../../dashboard/interfaces/diagrama.interface';
+import { IDiagrama, IDiagramaDB, NodoAtributo, NodoDiagrama } from '../../dashboard/interfaces/diagrama.interface';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SocketService } from '../services/socket.service';
 
@@ -618,27 +618,47 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor`;
 
   const fin = `}`;
-
-  const nodos = this.state.diagramNodeData;
-    nodos.forEach(tabla => {
-      //
-    });
-    const databasename = `@Entity(name = "detalles_entrada") // Nombre de la tabla en la base de datos`;
-
-    const data3 = `public class DetalleEntrada {`;
-            
-    const id = `  @Id
+  let databasename: string = '';
+  let data3: string = '';
+  const id = `  @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Autoincremental para la columna id
   private Long id;`;
-            
-    const atributos = `  @Column(nullable = false)
-  private Integer cantidad;`;
-            
-    const relaciones = `  @Column(nullable = false)
-  private String productoId;`;
-                
+  let atributos: string = '';
+  let relaciones: string = '';
 
-    const fileContent = inicio + '\n\n' +
+  const nodos: any = this.myDiagramComponent.diagram!.model.nodeDataArray;
+    nodos.forEach((tabla: NodoDiagrama) => {
+      const table_name = tabla.name.toLowerCase().replace(' ', '_');
+      
+      databasename = `@Entity(name = "${ table_name}") // Nombre de la tabla en la base de datos`;
+      data3 = `public class ${ table_name } {`;
+      atributos = '';
+      tabla.attributes.forEach(
+        (atributo: NodoAtributo) => {
+          const nombreAt = atributo.name.toLowerCase();
+          const tipo = this.obtenerTipoDeDato(atributo.type.toLowerCase());
+          atributos =  atributos + `  @Column(nullable = false)
+  private ${ tipo } ${ nombreAt };` + '\n\n';
+        }
+      );
+
+      const key = tabla.key;
+      (this.myDiagramComponent.diagram!.model as any).linkDataArray.forEach(
+        (link: any ) => {
+          if(link.from == key){
+
+          } else if (link.to == key) {
+
+          }
+
+        }
+      )
+
+      
+      //   const relaciones = `  @Column(nullable = false)
+      // private String productoId;`;
+
+      const fileContent = inicio + '\n\n' +
                       databasename + '\n\n' +
                       data3 + '\n\n' +
                       id + '\n\n' +
@@ -646,23 +666,52 @@ import lombok.NoArgsConstructor;
                       relaciones + '\n\n' +
                       fin;
 
-  
+    const nameArchivo = table_name + '.java';
+    this.descargarJava(fileContent, nameArchivo )
+
+    });
   }
 
   descargarJava(fileContent: string, name: string) {
     // Paso 3: Crear un archivo Blob
-  const blob = new Blob([fileContent], { type: 'text/plain' });
-  const url = window.URL.createObjectURL(blob);
+    const blob = new Blob([fileContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
 
-  // Paso 4: Crear un enlace para la descarga
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = name; //'DetalleEntrada.java'; // Nombre del archivo
-  link.click();
+    // Paso 4: Crear un enlace para la descarga
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = name; //'DetalleEntrada.java'; // Nombre del archivo
+    link.click();
 
-  // Limpiar la URL del blob después de la descarga
-  window.URL.revokeObjectURL(url);
+    // Limpiar la URL del blob después de la descarga
+    window.URL.revokeObjectURL(url);
   }
 
+  obtenerTipoDeDato(parametro: string): string | undefined {
+    const tiposDeDatos: { [key: string]: string } = {
+        int: "Integer",
+        integer: "Integer",
+        string: "String",
+        varchar: "String",
+        bool: "boolean",
+        boolean: "boolean",
+        float: "double",
+        real: "double",
+        double: "double"
+    };
+
+    return tiposDeDatos[parametro.toLowerCase()];
+  }
+
+  tipoRelacion(link: any): string{
+    if (link.relationship && link.relationship != ""){
+      const relacion = link.relationship;
+      if(relacion == 'Association') return 'asociacion';
+      if(relacion == 'Realization') return 'asociacionclass'
+      if(relacion == 'Composition') return 'composicion'
+      if(relacion == 'Aggregation') return 'agregacion'
+    }
+    return 'herencia';
+  }
 }
 
