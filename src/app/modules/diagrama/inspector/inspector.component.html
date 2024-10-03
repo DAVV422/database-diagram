@@ -18,7 +18,7 @@
       </tbody>
     </table>
     <!-- Botón para añadir un nuevo atributo -->
-   <button (click)="addAttribute()">Add Attribute</button>
+   <button (click)="addAttribute()">Add Attribute</button>   
 </div>
   
 <div class="text-sm font-semibold text-muted-foreground" *ngIf='isLink()'>
@@ -46,7 +46,7 @@
         </tr>
         <tr>
           <input [ngModel]="toLink" (ngModelChange)="onLinkToTextChange($event)" />
-        </tr>
+        </tr>       
       </ng-container>
       
     </tbody>

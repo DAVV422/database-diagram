@@ -87,10 +87,9 @@ export class DiagramaComponent implements AfterViewInit, OnInit {
 
     // define the Node template
     diagram.nodeTemplate =
-      new go.Node(go.Panel.Auto, // the whole node panel
+      new go.Node('Auto', // the whole node panel
         {
-          locationSpot: go.Spot.Center,       
-          // fromSpot: go.Spot.AllSides,
+          locationSpot: go.Spot.Center,          
         }
       )        
         .add(          
@@ -103,6 +102,8 @@ export class DiagramaComponent implements AfterViewInit, OnInit {
               toLinkable: true,
               fromSpot: go.Spot.AllSides,
               toSpot: go.Spot.AllSides, 
+              fromLinkableSelfNode: true,
+              toLinkableSelfNode: true
            }
           ),
           new go.Panel('Table',
@@ -172,7 +173,8 @@ export class DiagramaComponent implements AfterViewInit, OnInit {
             reshapable: true,
             resegmentable: true,
             fromEndSegmentLength: 0,
-            toEndSegmentLength: 0            
+            toEndSegmentLength: 0,
+            routing: go.Routing.AvoidsNodes            
           };
         }
 
@@ -182,7 +184,7 @@ export class DiagramaComponent implements AfterViewInit, OnInit {
           linkStyle()
         )
         .setProperties(
-          { isTreeLink: true }
+          { isTreeLink: false }
         )
         .add(
           new go.Shape()
@@ -259,6 +261,8 @@ export class DiagramaComponent implements AfterViewInit, OnInit {
           .add(
             new go.Shape({ strokeDashArray: [3, 2] })
           )
+          .bind(new go.Binding("fromSpot", "fromSpot"))  // Punto de conexión desde
+          .bind(new go.Binding("toSpot", "toSpot"))
         );
 
         diagram.linkTemplateMap.add("Dependency",

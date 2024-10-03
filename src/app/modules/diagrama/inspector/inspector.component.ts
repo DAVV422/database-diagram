@@ -166,4 +166,5 @@ export class InspectorComponent{
       model.commitTransaction('add attribute');
     }
   }
+
 }
