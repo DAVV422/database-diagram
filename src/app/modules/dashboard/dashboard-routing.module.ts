@@ -3,6 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard.component';
 import { ListDiagramComponent } from './pages/list-diagram/list-diagram.component';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { ListInvitadosComponent } from './pages/list-invitados/list-invitados.component';
+import { InvitacionesComponent } from './pages/invitaciones/invitaciones.component';
 
 const routes: Routes = [
   {
@@ -12,6 +14,8 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'diagramas', pathMatch: 'full' },
       { path: 'diagramas', component: ListDiagramComponent },
+      { path: 'invitaciones', component: InvitacionesComponent },
+      { path: 'compartidos', component: ListInvitadosComponent },
       { path: '**', redirectTo: 'errors/404' },
     ],
   },

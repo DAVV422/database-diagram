@@ -18,10 +18,11 @@ export enum ESTADO {
 }
 
 export interface IInvitacion {
+    id?: string; 
     fecha: Date;
     estado: ESTADO;
     usuario?: IUser;
-    invitacion?: IInvitacion;
+    diagrama?: IDiagramaDB;
 }
 
 export interface IInvitacionCreate {

@@ -4,6 +4,7 @@
 
 export const environment = {
   baseUrl: 'http://localhost:3000/api',
+  baseSocket: 'http://localhost:3001',
   production: false,
 };
 

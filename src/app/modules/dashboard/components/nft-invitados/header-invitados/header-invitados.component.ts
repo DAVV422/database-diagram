@@ -7,14 +7,9 @@ import { RouterLink, Router } from '@angular/router';
     standalone: true,
     imports: [RouterLink]
 })
-export class HeaderInvitacionComponent implements OnInit {
-  constructor(
-    private readonly router: Router
+export class HeaderInvitadosComponent implements OnInit {
+  constructor(    
   ) {}
 
   ngOnInit(): void {}
-
-  newDiagram(){
-    this.router.navigate(['/diagramador/board']);
-  }
 }

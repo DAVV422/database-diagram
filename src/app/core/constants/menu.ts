@@ -11,8 +11,8 @@ export class Menu {
           label: 'Diagramas',
           route: '/dashboard',
           children: [
-            { label: 'Creados', route: '/dashboard/diagramas/creados' },
-            { label: 'Compartidos', route: '/dashboard/diagramas/invitados' },
+            { label: 'Creados', route: '/dashboard/diagramas' },
+            { label: 'Compartidos', route: '/dashboard/compartidos' },
           ],
         }
       ],

@@ -7,6 +7,7 @@ import { DiagramComponent } from '../../gojs/diagram/diagram.component';
 import { DiagramaService } from '../services/diagrama.service';
 import { IDiagrama, IDiagramaDB } from '../../dashboard/interfaces/diagrama.interface';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SocketService } from '../services/socket.service';
 
 @Component({
   selector: 'app-diagram-diagrama',
@@ -324,12 +325,14 @@ export class DiagramaComponent implements AfterViewInit, OnInit {
   constructor(
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute, 
+    private socketService: SocketService,
     private router: Router,
-    private readonly diagramaService: DiagramaService
+    private diagramaService: DiagramaService
   ) { }
 
-  ngOnInit(): void {
-    this.idDiagrama = this.route.snapshot.params['id'];    
+  ngOnInit(): void {    
+    this.idDiagrama = this.route.snapshot.params['id'];
+    // this.socketService.joinDiagram(this.idDiagrama);
       this.diagramaService.getDiagram(this.idDiagrama).
         subscribe(
           (resp: any) => {
@@ -386,7 +389,7 @@ export class DiagramaComponent implements AfterViewInit, OnInit {
 
     this.state = produce(this.state, (draft:any) => {
       let data: any = draft.selectedNodeData!;
-      console.log(draft.selectedNodeData);
+      console.log(draft.selectedNodeData);      
       data[path] = value;
       const key = data!.id;
       const idx = draft.diagramNodeData.findIndex((nd: any) => nd.key == key);
@@ -447,8 +450,9 @@ export class DiagramaComponent implements AfterViewInit, OnInit {
             (resp : any) => {
               console.log(resp);
               this.diagramaDB = resp.data;
+              confirm("Diagrama Guardado");
             }
-          );        
+          );              
     }
   }
 
@@ -469,6 +473,7 @@ export class DiagramaComponent implements AfterViewInit, OnInit {
             (resp : any) => {
               console.log(resp);
               this.diagramaDB = resp.data;
+              confirm("Diagrama Guardado");
             }
           );
       }
@@ -484,6 +489,7 @@ public deleteSelection() { this.myDiagramComponent.diagram!.commandHandler.delet
 public selectAll() { this.myDiagramComponent.diagram!.commandHandler.selectAll(); }
 
   salir(){
+    this.socketService.disconnect();
     this.router.navigate(['dashboard/diagramas']);
   }
 
@@ -559,7 +565,100 @@ public selectAll() { this.myDiagramComponent.diagram!.commandHandler.selectAll()
     a.download = 'diagram.png';  // Nombre del archivo a descargar
     a.click();
   }
+
+  invitar(tipo: string) {
+    if (tipo === "correo"){
+      const correo = prompt('Ingrese el correo del usurio a invitar...') || "";
+      this.diagramaService.invitarByCorreo(correo, this.idDiagrama)
+        .subscribe(
+          (resp: any) => {
+            console.log(resp);
+          }
+        );
+      confirm("Usuario Invitado");
+    } else {
+      this.diagramaService.invitarQR(this.idDiagrama)
+        .subscribe(
+          (resp: any) => {
+            console.log(resp);
+            // const img = new Image();
+            // img.src = resp.data;
+            // document.body.appendChild(img);
+            const link = document.createElement("a");
   
+            // Asignar la cadena base64 como la fuente del enlace
+            link.href = resp.data;
+
+            // Definir el nombre del archivo que se descargará
+            link.download = "imagen-qr.png";
+
+            // Simular un clic en el enlace para iniciar la descarga
+            link.click();
+          }
+        );
+    }
+  }
+  
+  generarModelo() {
+    const inicio = `import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id; 
+import jakarta.persistence.Column;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+                
+@Data
+@AllArgsConstructor
+@NoArgsConstructor`;
+
+  const fin = `}`;
+
+  const nodos = this.state.diagramNodeData;
+    nodos.forEach(tabla => {
+      //
+    });
+    const databasename = `@Entity(name = "detalles_entrada") // Nombre de la tabla en la base de datos`;
+
+    const data3 = `public class DetalleEntrada {`;
+            
+    const id = `  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Autoincremental para la columna id
+  private Long id;`;
+            
+    const atributos = `  @Column(nullable = false)
+  private Integer cantidad;`;
+            
+    const relaciones = `  @Column(nullable = false)
+  private String productoId;`;
+                
+
+    const fileContent = inicio + '\n\n' +
+                      databasename + '\n\n' +
+                      data3 + '\n\n' +
+                      id + '\n\n' +
+                      atributos + '\n\n' +
+                      relaciones + '\n\n' +
+                      fin;
+
+  
+  }
+
+  descargarJava(fileContent: string, name: string) {
+    // Paso 3: Crear un archivo Blob
+  const blob = new Blob([fileContent], { type: 'text/plain' });
+  const url = window.URL.createObjectURL(blob);
+
+  // Paso 4: Crear un enlace para la descarga
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name; //'DetalleEntrada.java'; // Nombre del archivo
+  link.click();
+
+  // Limpiar la URL del blob después de la descarga
+  window.URL.revokeObjectURL(url);
+  }
 
 }
 

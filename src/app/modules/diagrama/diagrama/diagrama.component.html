@@ -22,7 +22,14 @@
             <li><a id="selectAll" (click)="selectAll()">Select All</a></li>
           </ul>
         </li>
-        <li><a (click)="salir()">Salir</a>
+        <li><a>Invitar</a>
+          <ul class='sub-menus'>
+            <li><a id="invitarCorreo" (click)="invitar('correo')">Correo</a></li>
+            <li><a id="invitarQr" (click)="invitar('qr')">Generar QR</a></li>            
+          </ul>
+        </li>
+        <li><a (click)="generarModelo()">Generar Modelo</a></li>
+        <li><a (click)="salir()">Salir</a></li>
       </ul>
     </nav>
   <!-- </div> -->
